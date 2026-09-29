@@ -1,0 +1,35 @@
+# Git & IDE
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+
+# Python & Environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+
+# Tests & Notebooks
+tests/
+notebooks/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Heavy Data & Non-production artifacts
+data/raw/
+data/processed/
+results/
+reports/
+models/random_forest.pkl
+models/xgboost.pkl
+models/tuned_random_forest.pkl
+
+# OS specific
+.DS_Store
+Thumbs.db

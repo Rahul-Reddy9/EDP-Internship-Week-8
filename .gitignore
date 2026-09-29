@@ -6,6 +6,8 @@ data/processed/*.csv
 
 # Models (large binaries — consider Git LFS)
 models/*.pkl
+!models/tuned_xgboost.pkl
+!models/scaler.pkl
 
 # Python
 __pycache__/
