@@ -1,374 +1,210 @@
-ML Classification Project — Credit Card Fraud Detection
+# Credit Card Fraud Detection — Week 8
 
-Program: EDP AI/ML Internship
-Weeks: 5–8
-Project Type: Machine Learning Classification
+## EDP AI/ML Internship — Model Packaging & Deployment Preparation
 
-1. Project Overview
+**Project:** Credit Card Fraud Detection
+**Internship Phase:** Week 8
+**Focus:** Model Packaging, Inference, REST API, Testing, Docker, and CI
 
-This project focuses on detecting fraudulent credit card transactions using supervised machine learning classification algorithms.
+---
 
-The project continues the work from Week 4, where class imbalance was handled using SMOTE. In Weeks 5–7, the processed dataset is used to train, evaluate, compare, and tune two classification models:
+## 1. Overview
 
-Random Forest
+This repository contains the **Week 8 implementation** of the Credit Card Fraud Detection project.
 
-XGBoost
+The machine learning model used in this phase was developed and evaluated during the previous Weeks 5–7. Week 8 does not focus on developing a new machine learning model. Instead, it focuses on preparing the existing trained model for practical use.
 
-The complete workflow covers data preprocessing, model training, evaluation, hyperparameter tuning, and performance comparison.
+The main goal of Week 8 is to convert the trained XGBoost model into a reusable prediction system with:
 
-2. Objectives
+* Packaged model artifacts
+* Reusable preprocessing
+* Standalone inference
+* REST API
+* Automated testing
+* Docker containerization
+* Continuous integration
 
-The main objectives of this project are:
+The previous Weeks 5–7 project remains the model-development stage, while this repository represents the **packaging and deployment-preparation stage**.
 
-Prepare the credit card transaction dataset for machine learning.
+---
 
-Handle class imbalance using the preprocessing pipeline developed earlier.
+## 2. Relationship with Weeks 5–7
 
-Train a Random Forest classification model.
+The project is divided into two stages.
 
-Train an XGBoost classification model.
+### Weeks 5–7 — Model Development
 
-Evaluate models using multiple classification metrics.
+The earlier project focused on:
 
-Tune model hyperparameters using GridSearchCV.
+```text
+Data Preparation
+      ↓
+Model Training
+      ↓
+Model Evaluation
+      ↓
+Hyperparameter Tuning
+      ↓
+Model Selection
+```
+
+The trained and tuned XGBoost model from that stage is reused in Week 8.
+
+### Week 8 — Model Packaging and Deployment Preparation
+
+This repository extends the previous work:
+
+```text
+Trained Model
+      ↓
+Model Packaging
+      ↓
+Preprocessing Packaging
+      ↓
+Inference
+      ↓
+REST API
+      ↓
+Testing
+      ↓
+Docker
+      ↓
+Continuous Integration
+```
 
-Compare tuned and untuned models.
+This approach avoids retraining the model and concentrates on making the existing model usable as an application.
 
-Save trained models and evaluation results for further analysis.
+---
 
-3. Dataset
+## 3. Week 8 Objectives
 
-The project uses a credit card transaction dataset containing transaction-related features and a target column indicating whether a transaction is fraudulent.
+The objectives of this phase are:
 
-The standard Kaggle Credit Card Fraud Detection dataset contains:
+* Package the trained XGBoost model.
+* Package the required preprocessing scaler.
+* Maintain the correct input feature order.
+* Create a reusable prediction module.
+* Generate fraud probabilities.
+* Assign a simple risk level to predictions.
+* Build a REST API using FastAPI.
+* Provide interactive API documentation.
+* Add automated tests.
+* Containerize the application using Docker.
+* Configure GitHub Actions for continuous integration.
+* Prepare the application for future cloud deployment.
 
-284,807 transactions
+---
 
-492 fraudulent transactions
+## 4. Model Used
 
-Highly imbalanced target classes
+Week 8 reuses the tuned XGBoost classifier developed during the previous machine learning stage.
 
-Features such as Time, Amount, and anonymized PCA-transformed variables (V1–V28)
+The packaged model is stored at:
 
-Target column: Class
+```text
+models/tuned_xgboost.pkl
+```
 
-0 = Legitimate transaction
+The preprocessing scaler is stored separately:
 
-1 = Fraudulent transaction
+```text
+models/scaler.pkl
+```
 
-Important Note
+The model and scaler can be loaded directly by the inference application without retraining.
 
-The dataset currently used in this project contains 5,040 rows after the supplied dataset was prepared/reduced for the internship work. Therefore, the reported model results in this repository should be interpreted as results on this current sample dataset and not as results obtained from the full 284,807-row Kaggle dataset.
+---
 
-4. Class Imbalance
+## 5. Input Features
 
-Fraud detection is an imbalanced classification problem because fraudulent transactions are much fewer than legitimate transactions.
+The prediction system expects exactly **30 features** in the following order:
 
-Class imbalance can cause a model to favor the majority class. Therefore, the preprocessing pipeline uses techniques from the previous internship work to prepare the data appropriately.
+```text
+Time
+V1
+V2
+V3
+V4
+V5
+V6
+V7
+V8
+V9
+V10
+V11
+V12
+V13
+V14
+V15
+V16
+V17
+V18
+V19
+V20
+V21
+V22
+V23
+V24
+V25
+V26
+V27
+V28
+Amount
+```
 
-The train/test split is performed using stratification so that the class distribution is maintained between training and testing data.
+The feature order is kept fixed to ensure that input data is passed to the trained model correctly.
 
-5. Project Workflow
+---
 
-Credit Card Dataset
-        |
-        v
-Data Preprocessing
-        |
-        +--> Feature/Target Separation
-        |
-        +--> Feature Scaling
-        |
-        +--> Stratified Train/Test Split
-        |
-        v
-Processed Dataset
-        |
-        +----------------------+
-        |                      |
-        v                      v
- Random Forest             XGBoost
-        |                      |
-        v                      v
- Untuned Models
-        |                      |
-        +----------+-----------+
-                   |
-                   v
-          Model Evaluation
-                   |
-                   +--> Accuracy
-                   +--> Precision
-                   +--> Recall
-                   +--> F1 Score
-                   +--> ROC-AUC
-                   +--> Confusion Matrix
-                   |
-                   v
-          Hyperparameter Tuning
-              GridSearchCV
-                   |
-                   v
-          Tuned Random Forest
-          Tuned XGBoost
-                   |
-                   v
-          Final Model Comparison
+## 6. Preprocessing
 
-6. Methodology
+The Week 8 inference pipeline uses the packaged scaler:
 
-6.1 Data Preprocessing
+```text
+models/scaler.pkl
+```
 
-The preprocessing script performs the following operations:
+Only the following features are scaled:
 
-Loads the raw credit card dataset.
+```text
+Time
+Amount
+```
 
-Separates input features and target labels.
+The features:
 
-Scales numerical features such as Time and Amount.
+```text
+V1 – V28
+```
 
-Performs a stratified train/test split.
+are passed without additional scaling.
 
-Saves processed training and testing datasets.
+This preprocessing behavior is preserved so that inference remains consistent with the model's expected input format.
 
-Generated files:
+---
 
-data/processed/
-├── X_train.csv
-├── X_test.csv
-├── y_train.csv
-└── y_test.csv
+## 7. Week 8 Project Structure
 
-The current execution produced:
-
-Train shape: (4032, 30)
-Test shape:  (1008, 30)
-
-Train fraud rate: 0.7937%
-Test fraud rate:  0.7937%
-
-7. Model Training
-
-7.1 Random Forest
-
-Random Forest is an ensemble learning algorithm that combines multiple decision trees to produce a robust classification model.
-
-The trained model is saved as:
-
-models/random_forest.pkl
-
-Untuned test accuracy:
-
-99.21%
-
-7.2 XGBoost
-
-XGBoost is a gradient boosting algorithm that builds decision trees sequentially and improves the model by focusing on previous prediction errors.
-
-The trained model is saved as:
-
-models/xgboost.pkl
-
-Untuned test accuracy:
-
-99.40%
-
-8. Model Evaluation
-
-The models are evaluated using:
-
-Accuracy
-
-Measures the overall percentage of correctly classified transactions.
-
-Precision
-
-Measures how many transactions predicted as fraud are actually fraudulent.
-
-Recall
-
-Measures how many actual fraudulent transactions are correctly detected.
-
-F1 Score
-
-Provides a balance between precision and recall.
-
-ROC-AUC
-
-Measures the model's ability to distinguish between legitimate and fraudulent transactions across classification thresholds.
-
-Confusion Matrix
-
-Shows:
-
-True Positives
-
-True Negatives
-
-False Positives
-
-False Negatives
-
-9. Hyperparameter Tuning
-
-Hyperparameter tuning is performed using GridSearchCV with 5-fold cross-validation.
-
-The tuning objective uses:
-
-scoring = f1_weighted
-
-Random Forest Search
-
-The tuned Random Forest selected:
-
-n_estimators = 100
-max_depth = 10
-min_samples_split = 2
-
-Best cross-validation F1:
-
-0.9903
-
-XGBoost Search
-
-The tuned XGBoost selected:
-
-n_estimators = 200
-max_depth = 3
-learning_rate = 0.1
-
-Best cross-validation F1:
-
-0.9930
-
-10. Final Model Comparison
-
-The current evaluation produced the following results:
-
-Model
-
-Accuracy
-
-Precision
-
-Recall
-
-F1 Score
-
-ROC-AUC
-
-Random Forest
-
-99.21%
-
-98.42%
-
-99.21%
-
-98.81%
-
-98.73%
-
-XGBoost
-
-99.40%
-
-99.31%
-
-99.40%
-
-99.31%
-
-99.46%
-
-Tuned Random Forest
-
-99.21%
-
-98.42%
-
-99.21%
-
-98.81%
-
-98.29%
-
-Tuned XGBoost
-
-99.50%
-
-99.45%
-
-99.50%
-
-99.45%
-
-99.10%
-
-Best Overall Model
-
-Based on the current test results, Tuned XGBoost provides the best overall performance for accuracy, precision, recall, and F1 score.
-
-However, the untuned XGBoost achieved a slightly higher ROC-AUC:
-
-Untuned XGBoost ROC-AUC = 99.46%
-Tuned XGBoost ROC-AUC   = 99.10%
-
-Therefore, model selection should depend on the metric that is most important for the intended fraud-detection application.
-
-11. Project Structure
-
-ML-Classification-Project/
+```text
+EDP-AI-ML-Week8/
 │
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
 │
-├── data/
-│   ├── raw/
-│   │   └── creditcard.csv
-│   │
-│   └── processed/
-│       ├── X_train.csv
-│       ├── X_test.csv
-│       ├── y_train.csv
-│       └── y_test.csv
-│
-├── notebooks/
-│   ├── 01_data_preprocessing.ipynb
-│   ├── 02_random_forest.ipynb
-│   ├── 03_xgboost.ipynb
-│   └── 04_evaluation_and_tuning.ipynb
+├── models/
+│   ├── tuned_xgboost.pkl
+│   └── scaler.pkl
 │
 ├── src/
-│   ├── __init__.py
-│   ├── preprocessing.py
-│   ├── train_random_forest.py
-│   ├── train_xgboost.py
-│   ├── evaluate.py
-│   ├── tune.py
 │   ├── package_scaler.py
 │   └── predict.py
-│
-├── models/
-│   ├── scaler.pkl
-│   ├── random_forest.pkl
-│   ├── xgboost.pkl
-│   ├── tuned_random_forest.pkl
-│   └── tuned_xgboost.pkl
 │
 ├── tests/
 │   ├── __init__.py
 │   └── test_inference.py
 │
-├── results/
-│   ├── metrics/
-│   ├── confusion_matrices/
-│   └── comparison.csv
-│
 ├── reports/
-│   ├── week5_report.md
-│   ├── week6_7_report.md
 │   └── week8_report.md
 │
 ├── app.py
@@ -377,290 +213,154 @@ ML-Classification-Project/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
-12. Installation
+The repository may also contain supporting files carried forward from the previous project because the Week 8 implementation depends on the existing trained model.
 
-Clone or download the repository and open a terminal in the project directory.
+---
 
-Create a virtual environment:
+## 8. Model Packaging
 
-python -m venv .venv
+The trained model is stored as a reusable Joblib file:
 
-Activate it on Windows PowerShell:
+```text
+models/tuned_xgboost.pkl
+```
 
-.venv\Scripts\Activate.ps1
+The fitted scaler is stored as:
 
-Install dependencies:
+```text
+models/scaler.pkl
+```
 
-python -m pip install -r requirements.txt
+These artifacts allow the application to load the model and preprocessing configuration directly during inference.
 
-Test the important libraries:
+No model retraining is required when starting the prediction service.
 
-python -c "import pandas, sklearn, xgboost, joblib; print('All libraries installed successfully')"
+---
 
-13. Running the Project
+## 9. Standalone Prediction
 
-Run the scripts from the project root:
+The prediction module is located at:
 
-Step 1 — Preprocessing
+```text
+src/predict.py
+```
 
-python src/preprocessing.py
+It provides reusable inference functionality and can also be used from the command line.
 
-Step 2 — Train Random Forest
+### Test a legitimate transaction
 
-python src/train_random_forest.py
-
-Step 3 — Train XGBoost
-
-python src/train_xgboost.py
-
-Step 4 — Hyperparameter Tuning
-
-python src/tune.py
-
-Step 5 — Evaluation and Comparison
-
-python src/evaluate.py
-
-14. Notebook Execution Order
-
-If using Jupyter Notebook, run the notebooks in this order:
-
-01_data_preprocessing.ipynb
-        ↓
-02_random_forest.ipynb
-        ↓
-03_xgboost.ipynb
-        ↓
-04_evaluation_and_tuning.ipynb
-
-15. Data Leakage Prevention
-
-To avoid data leakage:
-
-The train/test split is performed before model evaluation.
-
-Scaling parameters are derived from training data.
-
-Test data is kept separate during model training.
-
-Cross-validation is used during hyperparameter tuning.
-
-Final test-set evaluation is performed after model selection.
-
-This helps provide a more reliable estimate of model performance.
-
-16. Generated Results
-
-The project generates:
-
-results/
-├── metrics/
-│   ├── random_forest_metrics.txt
-│   ├── xgboost_metrics.txt
-│   ├── tuned_random_forest_metrics.txt
-│   └── tuned_xgboost_metrics.txt
-│
-├── confusion_matrices/
-│   └── generated confusion matrix files
-│
-└── comparison.csv
-
-The trained models are stored in:
-
-models/
-
-17. Internship Week Mapping
-
-Week 5 — Classification Models
-
-Activities:
-
-Prepared processed dataset.
-
-Trained Random Forest.
-
-Trained XGBoost.
-
-Saved trained models.
-
-Checked initial model performance.
-
-Week 6 — Model Evaluation
-
-Activities:
-
-Calculated accuracy.
-
-Calculated precision.
-
-Calculated recall.
-
-Calculated F1 score.
-
-Calculated ROC-AUC.
-
-Generated confusion matrices.
-
-Compared model performance.
-
-Week 7 — Hyperparameter Tuning
-
-Activities:
-
-Used GridSearchCV.
-
-Applied 5-fold cross-validation.
-
-Tuned Random Forest.
-
-Tuned XGBoost.
-
-Compared tuned and untuned models.
-
-Selected the strongest model based on evaluation metrics.
-
-Week 8 — Model Packaging & Deployment Preparation
-
-Activities:
-
-Packaged Tuned XGBoost model (models/tuned_xgboost.pkl) and Scaler (models/scaler.pkl).
-
-Enforced canonical 30-feature sequence: Time, V1..V28, Amount.
-
-Restricted scaling exclusively to Time and Amount while preserving V1..V28 unscaled.
-
-Implemented standalone inference engine (src/predict.py) with risk scoring.
-
-Built production REST API using FastAPI (app.py) with OpenAPI / Swagger documentation.
-
-Configured containerized deployment with Dockerfile and .dockerignore.
-
-Created automated GitHub Actions CI workflow (.github/workflows/ci.yml).
-
-Implemented automated test suite (tests/test_inference.py) verifying pipeline integrity.
-
-18. Learning Outcomes
-
-After completing this project, the following concepts were practiced:
-
-Binary classification
-
-Credit card fraud detection
-
-Class imbalance
-
-Data preprocessing
-
-Feature scaling
-
-Stratified train/test splitting
-
-Random Forest
-
-XGBoost
-
-Model evaluation
-
-Confusion matrices
-
-Precision and recall
-
-F1 score
-
-ROC-AUC
-
-Cross-validation
-
-GridSearchCV
-
-Hyperparameter tuning
-
-Model comparison
-
-Saving machine learning models using Joblib
-
-19. Future Improvements
-
-Possible future improvements include:
-
-Use the complete Kaggle dataset for final benchmarking.
-
-Evaluate minority-class precision and recall separately.
-
-Experiment with PR-AUC because fraud detection is highly imbalanced.
-
-Test additional algorithms such as LightGBM or CatBoost.
-
-Perform threshold optimization based on business requirements.
-
-Add explainability using SHAP.
-
-Build a Streamlit dashboard for real-time fraud prediction.
-
-Deploy the model as a REST API.
-
-Add automated ML model monitoring.
-
-20. Conclusion
-
-This project demonstrates an end-to-end machine learning classification workflow for credit card fraud detection.
-
-Random Forest and XGBoost were trained and evaluated using multiple performance metrics. Hyperparameter tuning with GridSearchCV was then applied to improve model performance.
-
-On the current sample dataset, Tuned XGBoost achieved the highest accuracy and F1 score, making it the strongest model according to those metrics.
-
-The project also demonstrates important real-world machine learning practices such as preprocessing, stratified data splitting, model comparison, cross-validation, hyperparameter tuning, and result tracking.
-
-21. Week 8 — Model Packaging, REST API & Deployment Preparation
-
-In Week 8, the project transition from model experimentation to a production-grade inference service:
-
-21.1 Packaged Model & Preprocessing Integrity
-- Best Model: models/tuned_xgboost.pkl
-- Scaler: models/scaler.pkl
-- Exact 30-feature sequence enforced:
-  ['Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10',
-   'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20',
-   'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']
-- Selective Scaling: Only Time and Amount are scaled; V1 through V28 remain unscaled.
-
-21.2 Command-Line Inference
-Run standalone inference on pre-validated transactions:
-
+```powershell
 python src/predict.py --sample legit
+```
+
+### Test a fraud transaction
+
+```powershell
 python src/predict.py --sample fraud
+```
 
-21.3 Production REST API (FastAPI)
-Start the Uvicorn server locally:
+The output provides:
 
+* Prediction
+* Transaction label
+* Fraud probability
+* Risk level
+
+Example:
+
+```text
+Prediction: 0
+Label: Legitimate
+Fraud Probability: 0.0100%
+Risk Level: LOW
+```
+
+Example fraud prediction:
+
+```text
+Prediction: 1
+Label: Fraudulent
+Fraud Probability: 99.9800%
+Risk Level: HIGH
+```
+
+The displayed probability depends on the model and input transaction.
+
+---
+
+## 10. FastAPI REST API
+
+Week 8 exposes the trained model through a REST API using FastAPI.
+
+The API application is:
+
+```text
+app.py
+```
+
+Start the application with:
+
+```powershell
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
 
-Available Endpoints:
-- GET /: API root and documentation links
-- GET /health: Service health and model status
-- GET /sample: Pre-populated legitimate and fraud payloads
-- POST /predict: Single transaction prediction
-- POST /predict/batch: Batch transaction predictions
+The API will run at:
 
-Interactive Swagger UI documentation is available at:
+```text
+http://localhost:8000
+```
+
+---
+
+## 11. API Endpoints
+
+| Method | Endpoint         | Description                     |
+| ------ | ---------------- | ------------------------------- |
+| GET    | `/`              | Displays basic API information  |
+| GET    | `/health`        | Checks API and model status     |
+| GET    | `/sample`        | Returns sample transaction data |
+| POST   | `/predict`       | Predicts one transaction        |
+| POST   | `/predict/batch` | Predicts multiple transactions  |
+
+---
+
+## 12. Swagger Documentation
+
+FastAPI automatically provides interactive API documentation.
+
+After starting the server, open:
+
+```text
 http://localhost:8000/docs
+```
 
-21.4 Example API Requests (cURL)
+Swagger can be used to:
 
-Single Transaction Prediction:
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "Time": 31604.21, "V1": -0.42015, "V2": -0.43649, "V3": -1.51860, "V4": 2.98559,
-       "V5": -1.63805, "V6": -2.23789, "V7": -2.27306, "V8": -1.00042, "V9": -0.78319,
-       "V10": 0.57358, "V11": -0.57348, "V12": 1.55848, "V13": 2.59228, "V14": 1.45910,
-       "V15": 0.82946, "V16": -1.08856, "V17": 1.44921, "V18": -0.39534, "V19": -1.57161,
-       "V20": 1.14596, "V21": 0.23719, "V22": 0.67931, "V23": -0.45521, "V24": 0.28307,
-       "V25": 1.18469, "V26": -0.61417, "V27": -1.60533, "V28": 0.66319, "Amount": 149.97
-     }'
+* View API endpoints.
+* View request formats.
+* Submit transaction data.
+* Test predictions.
+* Inspect API responses.
 
-Response:
+This makes it possible to test the model through a browser without creating a separate frontend application.
+
+---
+
+## 13. Single Prediction
+
+The endpoint:
+
+```text
+POST /predict
+```
+
+accepts one transaction containing the required 30 features.
+
+A prediction response contains information such as:
+
+```json
 {
   "prediction": 0,
   "label": "Legitimate",
@@ -668,27 +368,289 @@ Response:
   "threshold_used": 0.5,
   "risk_level": "LOW"
 }
+```
 
-21.5 Containerization (Docker)
-Build the image:
+The prediction value represents the classification produced by the trained model.
+
+---
+
+## 14. Batch Prediction
+
+The endpoint:
+
+```text
+POST /predict/batch
+```
+
+allows multiple transactions to be processed in a single request.
+
+Batch prediction is useful when several transaction records need to be evaluated together instead of sending separate requests for every transaction.
+
+---
+
+## 15. Automated Testing
+
+Week 8 includes automated tests under:
+
+```text
+tests/test_inference.py
+```
+
+Run the tests using:
+
+```powershell
+python -m unittest discover -s tests
+```
+
+The tests check important parts of the inference system, including:
+
+* Model loading
+* Scaler loading
+* Input feature handling
+* Prediction behavior
+* API functionality
+* Response structure
+* Sample inference
+
+### Validation Result
+
+The completed test run produced:
+
+```text
+11 tests passed
+OK
+```
+
+---
+
+## 16. Docker Containerization
+
+The application can be packaged into a Docker image.
+
+The Docker configuration is provided in:
+
+```text
+Dockerfile
+```
+
+Build the Docker image:
+
+```powershell
 docker build -t fraud-detection-api:latest .
+```
 
 Run the container:
+
+```powershell
 docker run -d -p 8000:8000 --name fraud-api fraud-detection-api:latest
+```
 
-21.6 CI/CD & Automated Testing
-Run the complete test suite locally:
-python -m unittest discover -s tests
+After starting the container, the API is available at:
 
-Continuous integration is automated via GitHub Actions (.github/workflows/ci.yml) testing Python 3.10 and 3.11 environments.
+```text
+http://localhost:8000
+```
 
-22. Author
+Swagger documentation:
 
-G . Rahul Reddy
+```text
+http://localhost:8000/docs
+```
+
+The `.dockerignore` file prevents unnecessary files from being included in the Docker build context.
+
+---
+
+## 17. Continuous Integration
+
+GitHub Actions is configured using:
+
+```text
+.github/workflows/ci.yml
+```
+
+The workflow automatically runs project checks when changes are pushed to GitHub.
+
+The CI process installs the required dependencies and runs the automated tests.
+
+This helps identify problems before the application is deployed.
+
+---
+
+## 18. Installing Dependencies
+
+Create a virtual environment:
+
+```powershell
+python -m venv .venv
+```
+
+Activate it:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Install the required packages:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+The required libraries include the machine learning and API dependencies needed for model inference and testing.
+
+---
+
+## 19. Week 8 Validation
+
+The Week 8 implementation was validated through the following checks.
+
+### Model artifacts
+
+```text
+tuned_xgboost.pkl
+scaler.pkl
+```
+
+were available for inference.
+
+### Feature handling
+
+```text
+30 input features
+Time and Amount scaled
+V1–V28 kept without additional scaling
+```
+
+### Sample inference
+
+```text
+Legitimate sample → Prediction 0
+Fraud sample      → Prediction 1
+```
+
+### Automated tests
+
+```text
+11 tests passed
+OK
+```
+
+### API
+
+The following endpoints were implemented:
+
+```text
+/
+ /health
+ /sample
+ /predict
+ /predict/batch
+```
+
+### Containerization
+
+The project includes:
+
+```text
+Dockerfile
+.dockerignore
+```
+
+### Continuous Integration
+
+The project includes:
+
+```text
+.github/workflows/ci.yml
+```
+
+---
+
+## 20. Week 8 Deliverables
+
+The completed Week 8 implementation contains:
+
+* Packaged XGBoost model
+* Packaged preprocessing scaler
+* Fixed 30-feature input structure
+* Standalone inference module
+* Fraud probability calculation
+* Risk-level classification
+* FastAPI REST API
+* Swagger documentation
+* Single prediction endpoint
+* Batch prediction endpoint
+* Automated tests
+* Docker configuration
+* GitHub Actions workflow
+* Week 8 project report
+
+---
+
+## 21. Week 8 Outcome
+
+The main outcome of Week 8 is a transition from a trained machine learning model to a reusable inference application.
+
+The workflow is:
+
+```text
+Existing Trained Model
+        ↓
+Packaged Model + Scaler
+        ↓
+Prediction Module
+        ↓
+FastAPI REST API
+        ↓
+Automated Testing
+        ↓
+Docker Container
+        ↓
+CI Validation
+```
+
+This structure makes the trained fraud detection model easier to test, reuse, and prepare for deployment.
+
+---
+
+## 22. Future Improvements
+
+The current implementation can be extended with additional production features such as:
+
+* Cloud deployment
+* API authentication
+* HTTPS
+* Request logging
+* Monitoring
+* Model version management
+* Frontend integration
+* Database integration
+* Model performance monitoring
+
+These features are possible future extensions and are not required for the current Week 8 implementation.
+
+---
+
+## 23. Conclusion
+
+Week 8 focuses on preparing the Credit Card Fraud Detection model for practical use.
+
+Instead of training another model, the existing tuned XGBoost model is packaged with its required preprocessing configuration. A standalone inference module and FastAPI service provide prediction capabilities, while automated tests, Docker, and GitHub Actions improve the project's reliability and deployment readiness.
+
+Therefore, Week 8 serves as the **model packaging and deployment-preparation stage** following the machine learning development completed during Weeks 5–7.
+
+---
+
+## Author
+
+**G . Rahul Reddy**
 
 B.Tech — Information Technology
 Institute of Aeronautical Engineering, Hyderabad
 
-23. License
+---
 
-This project is created for educational and internship purposes.
+## License
+
+The project is intended for educational, learning, and internship purposes.
